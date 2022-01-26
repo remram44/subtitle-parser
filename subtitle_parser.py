@@ -190,3 +190,13 @@ class SrtParser(object):
         if lineno is None:
             lineno = self.lineno
         self.warnings.append((lineno, message))
+
+
+class WebVttParser(SrtParser):
+    def parse(self):
+        # Expect 'WEBVTT' on first line
+        line = self.read_line()
+        if line != 'WEBVTT':
+            raise SubtitleError("First line is not 'WEBVTT'")
+
+        super(WebVttParser, self).parse()

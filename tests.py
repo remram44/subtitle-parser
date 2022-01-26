@@ -1,6 +1,6 @@
 import unittest
 
-from subtitle_parser import SubtitleError, Subtitle, SrtParser
+from subtitle_parser import SubtitleError, Subtitle, SrtParser, WebVttParser
 
 
 class TestSrtSubtitles(unittest.TestCase):
@@ -75,6 +75,42 @@ class TestSrtSubtitles(unittest.TestCase):
         with self.assertRaises(SubtitleError) as err:
             SrtParser(io.StringIO('1\n')).parse()
         self.assertEqual(err.exception.args[0], 'Missing timestamps line 1')
+
+
+class TestWebVttSubtitles(unittest.TestCase):
+    def test_valid(self):
+        import io
+        import textwrap
+
+        parser = WebVttParser(io.StringIO(textwrap.dedent('''\
+            WEBVTT
+
+            1
+            00:00:00,123 --> 00:00:03,456
+            Hi there
+
+            2
+            00:01:04,843 --> 00:01:05,428
+            This is an example of a
+            subtitle file in SRT format
+        ''')))
+        parser.parse()
+        self.assertEqual(parser.subtitles, [
+            Subtitle(1, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
+            Subtitle(
+                2, (0, 1, 4, 843), (0, 1, 5, 428),
+                'This is an example of a\nsubtitle file in SRT format',
+            ),
+        ])
+
+    def test_wrong(self):
+        import io
+
+        with self.assertRaises(SubtitleError) as err:
+            WebVttParser(
+                io.StringIO('1\n00:00:00,123 --> 00:00:03,456\ntest\n'),
+            ).parse()
+        self.assertEqual(err.exception.args[0], "First line is not 'WEBVTT'")
 
 
 if __name__ == '__main__':
