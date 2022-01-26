@@ -40,6 +40,8 @@ class Subtitle(object):
 
 
 class SrtParser(object):
+    number_required = True
+
     _re_timestamps = re.compile(
         r'^(.*) --> (.*)$',
     )
@@ -65,28 +67,38 @@ class SrtParser(object):
 
     def parse_subtitle(self):
         # Read subtitle number
-        line = self.read_line()
+        line = self.next_line()
         if line is None:
             return False
-        try:
-            subtitle_number = int(line)
-        except (ValueError, OverflowError):
-            raise SubtitleError(
-                "Invalid subtitle number line {lineno}".format(
-                    lineno=self.lineno,
-                ),
-            )
+        if '-->' not in line:
+            self.read_line()
+            try:
+                subtitle_number = int(line)
+            except (ValueError, OverflowError):
+                raise SubtitleError(
+                    "Invalid subtitle number line {lineno}".format(
+                        lineno=self.lineno,
+                    ),
+                )
 
-        prev_subtitle_number = 0
-        if self.subtitles:
-            prev_subtitle_number = self.subtitles[-1].number
-        if subtitle_number != prev_subtitle_number + 1:
-            self.warning(
-                "Subtitle number is {actual}, expected {expected}".format(
-                    actual=subtitle_number,
-                    expected=prev_subtitle_number + 1,
+            prev_subtitle_number = 0
+            if self.subtitles:
+                prev_subtitle_number = self.subtitles[-1].number
+            if subtitle_number != prev_subtitle_number + 1:
+                self.warning(
+                    "Subtitle number is {actual}, expected {expected}".format(
+                        actual=subtitle_number,
+                        expected=prev_subtitle_number + 1,
+                    ),
+                )
+        elif self.number_required:
+            raise SubtitleError(
+                "Missing subtitle number line {lineno}".format(
+                    lineno=self.lineno + 1,
                 ),
             )
+        else:
+            subtitle_number = None
 
         # Read timestamps
         start, end = self.parse_timestamps()
@@ -110,13 +122,15 @@ class SrtParser(object):
             '\n'.join(lines),
         ))
 
-        # Read empty lines
+        self.skip_blank_lines()
+
+        return True
+
+    def skip_blank_lines(self):
         line = self.next_line()
         while line == '':
             self.read_line()
             line = self.next_line()
-
-        return True
 
     def decode_timestamp(self, s):
         m = self._re_timestamp.match(s)
@@ -193,6 +207,8 @@ class SrtParser(object):
 
 
 class WebVttParser(SrtParser):
+    number_required = False
+
     def parse(self):
         # Expect 'WEBVTT' on first line
         line = self.read_line()
@@ -200,3 +216,22 @@ class WebVttParser(SrtParser):
             raise SubtitleError("First line is not 'WEBVTT'")
 
         super(WebVttParser, self).parse()
+
+    def parse_subtitle(self):
+        line = self.next_line()
+
+        # Skip comments
+        if line is None:
+            return False
+        elif line.startswith('NOTE ') or line == 'STYLE':
+            self.skip_until_blank_line()
+            return True
+
+        return super(WebVttParser, self).parse_subtitle()
+
+    def skip_until_blank_line(self):
+        line = self.next_line()
+        while line:
+            self.read_line()
+            line = self.next_line()
+        self.skip_blank_lines()
