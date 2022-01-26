@@ -8,8 +8,7 @@ class TestSrtSubtitles(unittest.TestCase):
         import io
         import textwrap
 
-        parser = SrtParser()
-        parser.parse(io.StringIO(textwrap.dedent('''\
+        parser = SrtParser(io.StringIO(textwrap.dedent('''\
             1
             00:00:00,123 --> 00:00:03,456
             Hi there
@@ -19,6 +18,7 @@ class TestSrtSubtitles(unittest.TestCase):
             This is an example of a
             subtitle file in SRT format
         ''')))
+        parser.parse()
         self.assertEqual(parser.subtitles, [
             Subtitle(1, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
             Subtitle(
@@ -31,8 +31,7 @@ class TestSrtSubtitles(unittest.TestCase):
         import io
         import textwrap
 
-        parser = SrtParser()
-        parser.parse(io.StringIO(textwrap.dedent('''\
+        parser = SrtParser(io.StringIO(textwrap.dedent('''\
             2
             00:00:00,123 --> 00:00:03,456
             Hi there
@@ -44,6 +43,7 @@ class TestSrtSubtitles(unittest.TestCase):
             This is an example of a
             subtitle file in SRT format
         ''')))
+        parser.parse()
         self.assertEqual(parser.subtitles, [
             Subtitle(2, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
             Subtitle(
@@ -60,20 +60,20 @@ class TestSrtSubtitles(unittest.TestCase):
         import io
 
         with self.assertRaises(SubtitleError) as err:
-            SrtParser().parse(io.StringIO('1\ntest\n'))
+            SrtParser(io.StringIO('1\ntest\n')).parse()
         self.assertEqual(err.exception.args[0], 'Invalid timestamps line 2')
 
         with self.assertRaises(SubtitleError) as err:
-            SrtParser().parse(
+            SrtParser(
                 io.StringIO('1\n00:00:00,123 --> 00:00:03,456\n\n'),
-            )
+            ).parse()
         self.assertEqual(
             err.exception.args[0],
             'No content in subtitle line 2',
         )
 
         with self.assertRaises(SubtitleError) as err:
-            SrtParser().parse(io.StringIO('1\n'))
+            SrtParser(io.StringIO('1\n')).parse()
         self.assertEqual(err.exception.args[0], 'Missing timestamps line 1')
 
 

@@ -47,15 +47,14 @@ class SrtParser(object):
         r'^([0-9]+)?:([0-9][0-9]):([0-9][0-9])[,.]([0-9][0-9][0-9])$',
     )
 
-    def __init__(self):
+    def __init__(self, fileobj):
+        self.fileobj = fileobj
         self.lineno = 0
         self._next_line = None
         self.subtitles = []
         self.warnings = []
 
-    def parse(self, fileobj):
-        self.fileobj = fileobj
-
+    def parse(self):
         # Skip blank lines
         while self.next_line() == '':
             self.read_line()
