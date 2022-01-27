@@ -1,4 +1,9 @@
+import argparse
+import codecs
+import os.path
 import re
+import sys
+import traceback
 
 
 __all__ = [
@@ -271,3 +276,121 @@ def render_csv(subtitles, file_out):
             format_timestamp(subtitle.end),
             subtitle.text,
         ])
+
+
+def main():
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--to', help="Output format")
+    arg_parser.add_argument('--input-charset', default=None)
+    arg_parser.add_argument('input', help="Input subtitles")
+    arg_parser.add_argument('--output', '-o', help="Output file name")
+
+    args = arg_parser.parse_args()
+
+    # Pick format
+    if not args.to:
+        arg_parser.error("No output format specified (use --to)")
+        return
+    to = args.to.lower()
+    if to == 'html':
+        render_func = render_html
+        ext = '.html'
+    elif to == 'csv':
+        render_func = render_csv
+        ext = '.csv'
+    else:
+        arg_parser.error("Requested output format is not supported")
+        return
+
+    # Pick input
+    if not args.input:
+        arg_parser.error("No input subtitles file specified")
+        return
+    elif not os.path.exists(args.input):
+        arg_parser.error("Specified input subtitles doesn't exist")
+        return
+    file_input = open(args.input, 'rb')
+
+    # Pick encoding
+    if args.input_charset is None:
+        import chardet
+
+        detector = chardet.UniversalDetector()
+        chunk = file_input.read(4096)
+        while chunk and not detector.done:
+            detector.feed(chunk)
+            chunk = file_input.read(4096)
+        detector.close()
+        charset = detector.result['encoding']
+        file_input.seek(0, 0)
+
+        if charset:
+            print(
+                "{name}: charset detected as '{charset}'".format(
+                    name=args.input,
+                    charset=charset,
+                ),
+                file=sys.stderr
+            )
+        else:
+            charset = 'utf-8'
+            print(
+                "{name}: couldn't detect charset, using '{charset}'".format(
+                    name=args.input,
+                    charset=charset,
+                ),
+                file=sys.stderr,
+            )
+    else:
+        charset = args.input_charset
+    file_input = codecs.getreader(charset)(file_input)
+
+    # Pick output
+    if not args.output:
+        output = os.path.splitext(args.input)[0] + ext
+        if os.path.exists(output):
+            arg_parser.error(
+                (
+                    "Default output is {path} but it already exists, "
+                    + "please remove it or use --output"
+                ).format(path=os.path.basename(output)),
+            )
+            return
+    else:
+        output = args.output
+    file_output = open(output, 'w', encoding='utf-8')
+
+    # Parse
+    if args.input.lower().endswith('.vtt'):
+        parser_cls = WebVttParser
+    else:
+        parser_cls = SrtParser
+    parser = parser_cls(file_input)
+    try:
+        parser.parse()
+    except SubtitleError:
+        print(
+            "Error processing {name}:".format(name=args.input),
+            file=sys.stderr,
+        )
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)
+
+    # Print warnings
+    for lineno, text in parser.warnings:
+        print(
+            "{name}:{lineno}: {text}".format(
+                name=args.input,
+                lineno=lineno,
+                text=text,
+            ),
+            file=sys.stderr,
+        )
+
+    # Write output
+    render_func(parser.subtitles, file_output)
+    file_output.close()
+
+
+if __name__ == '__main__':
+    main()
