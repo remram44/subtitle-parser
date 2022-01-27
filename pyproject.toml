@@ -9,6 +9,8 @@ authors = [
     "Remi Rampin <remi@rampin.org>",
 ]
 
+readme = "README.md"
+
 repository = "https://github.com/remram44/subtitle-parser"
 
 keywords = ["subtitle", "srt", "webvtt", "video", "text track", "subrip"]
