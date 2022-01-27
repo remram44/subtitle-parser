@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "subtitle-parser"
-version = "0.1.1.dev0"
+version = "1.0.0"
 description = "Parser for SRT and WebVTT subtitle files"
 
 license = "MIT"
