@@ -5,6 +5,10 @@ class SubtitleError(ValueError):
     """Invalid subtitle file"""
 
 
+def format_timestamp(ts):
+    return '{0:02}:{1:02}:{2:02}.{3:03}'.format(*ts)
+
+
 class Subtitle(object):
     def __init__(self, number, start, end, text):
         self.number = number
@@ -25,16 +29,13 @@ class Subtitle(object):
         ))
 
     def __repr__(self):
-        def format_ts(ts):
-            return '{0:02}:{1:02}:{2:02},{3:03}'.format(*ts)
-
         return (
             '<Subtitle number={number} '
             + 'start={start} end={end} text={text}>'
         ).format(
             number=self.number,
-            start=format_ts(self.start),
-            end=format_ts(self.end),
+            start=format_timestamp(self.start),
+            end=format_timestamp(self.end),
             text=self.text,
         )
 
@@ -237,3 +238,29 @@ class WebVttParser(SrtParser):
             self.read_line()
             line = self.next_line()
         self.skip_blank_lines()
+
+
+def render_html(subtitles, file_out):
+    import html
+
+    for subtitle in subtitles:
+        print(
+            "<p>{ts} {text}</p>".format(
+                ts=format_timestamp(subtitle.start),
+                text=html.escape(subtitle.text).replace('\n', '<br>'),
+            ),
+            file=file_out,
+        )
+
+
+def render_csv(subtitles, file_out):
+    import csv
+
+    writer = csv.writer(file_out)
+    writer.writerow(['start', 'end', 'text'])
+    for subtitle in subtitles:
+        writer.writerow([
+            format_timestamp(subtitle.start),
+            format_timestamp(subtitle.end),
+            subtitle.text,
+        ])
