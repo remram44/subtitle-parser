@@ -136,7 +136,10 @@ class TestWebVttSubtitles(unittest.TestCase):
             WebVttParser(
                 io.StringIO('1\n00:00:00,123 --> 00:00:03,456\ntest\n'),
             ).parse()
-        self.assertEqual(err.exception.args[0], "First line is not 'WEBVTT'")
+        self.assertEqual(
+            err.exception.args[0],
+            "First line doesn't start with 'WEBVTT'",
+        )
 
 
 if __name__ == '__main__':

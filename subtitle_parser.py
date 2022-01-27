@@ -212,8 +212,8 @@ class WebVttParser(SrtParser):
     def parse(self):
         # Expect 'WEBVTT' on first line
         line = self.read_line()
-        if line != 'WEBVTT':
-            raise SubtitleError("First line is not 'WEBVTT'")
+        if not line.startswith('WEBVTT'):
+            raise SubtitleError("First line doesn't start with 'WEBVTT'")
 
         super(WebVttParser, self).parse()
 
