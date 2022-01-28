@@ -69,6 +69,23 @@ class SrtParser(object):
         self.subtitles = []
         self.warnings = []
 
+    def print_warnings(self, fileobj=sys.stderr):
+        try:
+            filename = self.fileobj.name
+        except AttributeError:
+            filename = None
+        if not isinstance(filename, str):
+            filename = repr(self.fileobj)
+        for lineno, text in self.warnings:
+            print(
+                "{name}:{lineno}: {text}".format(
+                    name=filename,
+                    lineno=lineno,
+                    text=text,
+                ),
+                file=fileobj,
+            )
+
     def parse(self):
         # Skip blank lines
         while self.next_line() == '':
