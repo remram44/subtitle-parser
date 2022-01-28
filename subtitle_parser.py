@@ -330,16 +330,20 @@ def main():
 
     # Pick encoding
     if args.input_charset is None:
-        import chardet
-
-        detector = chardet.UniversalDetector()
-        chunk = file_input.read(4096)
-        while chunk and not detector.done:
-            detector.feed(chunk)
+        try:
+            import chardet
+        except ImportError:
+            charset = None
+            print("chardet is not available", file=sys.stderr)
+        else:
+            detector = chardet.UniversalDetector()
             chunk = file_input.read(4096)
-        detector.close()
-        charset = detector.result['encoding']
-        file_input.seek(0, 0)
+            while chunk and not detector.done:
+                detector.feed(chunk)
+                chunk = file_input.read(4096)
+            detector.close()
+            charset = detector.result['encoding']
+            file_input.seek(0, 0)
 
         if charset:
             print(
