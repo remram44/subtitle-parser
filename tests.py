@@ -1,5 +1,6 @@
 import unittest
 
+import re
 from subtitle_parser import SubtitleError, Subtitle, SrtParser, WebVttParser
 
 
@@ -84,6 +85,25 @@ class TestSrtSubtitles(unittest.TestCase):
             err.exception.args[0],
             'Missing subtitle number line 1',
         )
+
+    def test_invalid_unicode(self):
+        import codecs
+        import io
+
+        with self.assertRaises(SubtitleError) as err:
+            SrtParser(codecs.getreader('utf-8')(io.BytesIO(
+                b'1\n00:00:00,123 --> 00:00:03,456\nHi there\n\n' * 100
+                + b'\xE9\n'
+                + b'1\n00:00:00,123 --> 00:00:03,456\nHi there\n\n' * 100
+            ))).parse()
+        m = re.match(
+            '^Invalid unicode in subtitles near line ([0-9]+)$',
+            err.exception.args[0],
+        )
+        self.assertTrue(m)
+        # Can't assert exact line number, codec will raise before you get to
+        # the exact line because it decodes big chunks at a time
+        self.assertTrue(350 < int(m.group(1), 10) < 400)
 
 
 class TestWebVttSubtitles(unittest.TestCase):

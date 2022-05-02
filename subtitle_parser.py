@@ -211,17 +211,24 @@ class SrtParser(object):
         return start, end
 
     def read_line(self):
-        if self._next_line is None:
-            try:
-                line = next(self.fileobj)
-            except StopIteration:
-                return None
-        else:
-            line = self._next_line
-            try:
-                self._next_line = next(self.fileobj)
-            except StopIteration:
-                self._next_line = None
+        try:
+            if self._next_line is None:
+                try:
+                    line = next(self.fileobj)
+                except StopIteration:
+                    return None
+            else:
+                line = self._next_line
+                try:
+                    self._next_line = next(self.fileobj)
+                except StopIteration:
+                    self._next_line = None
+        except UnicodeDecodeError as e:
+            raise SubtitleError(
+                "Invalid unicode in subtitles near line {lineno}".format(
+                    lineno=self.lineno + 1,
+                ),
+            ) from e
         self.lineno += 1
         return line.rstrip('\r\n')
 
@@ -231,6 +238,12 @@ class SrtParser(object):
                 self._next_line = next(self.fileobj)
             except StopIteration:
                 return None
+            except UnicodeDecodeError as e:
+                raise SubtitleError(
+                    "Invalid unicode in subtitles near line {lineno}".format(
+                        lineno=self.lineno + 1,
+                    ),
+                ) from e
         return self._next_line.rstrip('\r\n')
 
     def warning(self, message, *, lineno=None):
