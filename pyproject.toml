@@ -16,6 +16,10 @@ repository = "https://github.com/remram44/subtitle-parser"
 keywords = ["subtitle", "srt", "webvtt", "video", "text track", "subrip"]
 
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Text Processing",
+    "Topic :: Utilities",
 ]
 
 include = [
