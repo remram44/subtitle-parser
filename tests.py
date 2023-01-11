@@ -161,6 +161,50 @@ class TestWebVttSubtitles(unittest.TestCase):
             "First line doesn't start with 'WEBVTT'",
         )
 
+    def test_numbering_check(self):
+        import io
+        import textwrap
+
+        parser = WebVttParser(io.StringIO(textwrap.dedent('''\
+            WEBVTT
+
+            1
+            00:00:00,123 --> 00:00:01,456
+            number
+
+            00:00:02,000 --> 00:00:03,000
+            no number
+
+            00:00:04,000 --> 00:00:05,000
+            no number
+
+            2
+            00:00:06,000 --> 00:00:07,000
+            number
+
+            4
+            00:00:08,000 --> 00:00:09,000
+            wrong number
+
+            00:00:10,000 --> 00:00:11,000
+            no number
+        ''')))
+        parser.parse()
+        self.assertEqual(parser.subtitles, [
+            Subtitle(1, (0, 0, 0, 123), (0, 0, 1, 456), 'number'),
+            Subtitle(None, (0, 0, 2, 0), (0, 0, 3, 0), 'no number'),
+            Subtitle(None, (0, 0, 4, 0), (0, 0, 5, 0), 'no number'),
+            Subtitle(2, (0, 0, 6, 0), (0, 0, 7, 0), 'number'),
+            Subtitle(4, (0, 0, 8, 0), (0, 0, 9, 0), 'wrong number'),
+            Subtitle(None, (0, 0, 10, 0), (0, 0, 11, 0), 'no number'),
+        ])
+        self.assertEqual(parser.warnings, [
+            (6, 'Subtitle numbers stop line 7'),
+            (13, 'Subtitle numbers (re)starts line 14'),
+            (17, 'Subtitle number is 4, expected 3'),
+            (20, 'Subtitle numbers stop line 21'),
+        ])
+
 
 if __name__ == '__main__':
     unittest.main()
