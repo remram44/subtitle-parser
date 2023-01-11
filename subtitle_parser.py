@@ -117,7 +117,10 @@ class SrtParser(object):
             prev_subtitle_number = 0
             if self.subtitles:
                 prev_subtitle_number = self.subtitles[-1].number
-            if subtitle_number != prev_subtitle_number + 1:
+            if (
+                prev_subtitle_number is not None
+                and subtitle_number != prev_subtitle_number + 1
+            ):
                 self.warning(
                     "Subtitle number is {actual}, expected {expected}".format(
                         actual=subtitle_number,
