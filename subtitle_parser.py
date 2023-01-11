@@ -117,10 +117,13 @@ class SrtParser(object):
             prev_subtitle_number = 0
             if self.subtitles:
                 prev_subtitle_number = self.subtitles[-1].number
-            if (
-                prev_subtitle_number is not None
-                and subtitle_number != prev_subtitle_number + 1
-            ):
+            if prev_subtitle_number is None:
+                self.warning(
+                    "Subtitle numbers (re)starts line {lineno}".format(
+                        lineno=self.lineno + 1,
+                    ),
+                )
+            elif subtitle_number != prev_subtitle_number + 1:
                 self.warning(
                     "Subtitle number is {actual}, expected {expected}".format(
                         actual=subtitle_number,
@@ -134,6 +137,10 @@ class SrtParser(object):
                 ),
             )
         else:
+            if self.subtitles and self.subtitles[-1].number is not None:
+                self.warning("Subtitle numbers stop line {lineno}".format(
+                    lineno=self.lineno + 1,
+                ))
             subtitle_number = None
 
         # Read timestamps
