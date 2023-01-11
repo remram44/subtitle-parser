@@ -14,10 +14,10 @@ jobs:
           python-version: '3.x'
       - name: Install Poetry
         run: |
-          curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python - --version 1.1.12
+          curl -sSL https://install.python-poetry.org | python3 -
       - name: Install dependencies
-        run: $HOME/.poetry/bin/poetry install
+        run: $HOME/.local/bin/poetry install
       - name: Run flake8
-        run: $HOME/.poetry/bin/poetry run flake8 --ignore=W503
+        run: $HOME/.local/bin/poetry run flake8 --ignore=W503
       - name: Run unittests
-        run: $HOME/.poetry/bin/poetry run python tests.py
+        run: $HOME/.local/bin/poetry run python tests.py
