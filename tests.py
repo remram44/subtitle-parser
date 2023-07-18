@@ -218,7 +218,7 @@ class TestWebVttSubtitles(unittest.TestCase):
 
             2 "Doe, Kevin" (3768348160)
             00:11:07.169 --> 00:11:16.619
-            Right. That's okay. That's I'm okay with that. See like that achieve that goal. The outcome is I want people without having to click know what the behind the.
+            Right. That's okay. That's I'm okay with that.
 
             3 "Shmo, Jonathan" (1838608384)
             00:11:16.619 --> 00:11:23.369
@@ -230,7 +230,7 @@ class TestWebVttSubtitles(unittest.TestCase):
 
             5 "Conf WA HQ B5 3A" (1129774080)
             00:11:28.679 --> 00:11:34.649
-            That Paul, or is that monitor again? What is what is the difference for the user?
+            What is what is the difference for the user?
 
             6 "Conf WA HQ B5 3A" (1129774080)
             00:11:34.649 --> 00:11:38.429
@@ -246,14 +246,46 @@ class TestWebVttSubtitles(unittest.TestCase):
         ''')))
         parser.parse()
         self.assertEqual(parser.subtitles, [
-            Subtitle(1, (0, 11, 3, 989), (0, 11, 7, 169), "Another option is just to pop the tool tip.", name="Shmo, Jonathan"),
-            Subtitle(2, (0, 11, 7, 169), (0, 11, 16, 619), "Right. That's okay. That's I'm okay with that. See like that achieve that goal. The outcome is I want people without having to click know what the behind the.", name="Doe, Kevin"),
-            Subtitle(3, (0, 11, 16, 619), (0, 11, 23, 369), "Yep, yeah, we can just defaulted on for the 1st time.", name="Shmo, Jonathan"),
-            Subtitle(4, (0, 11, 23, 369), (0, 11, 28, 679), "Um, Paul, I think Paul had the hands up.", name="Doe, Kevin"),
-            Subtitle(5, (0, 11, 28, 679), (0, 11, 34, 649), "That Paul, or is that monitor again? What is what is the difference for the user?", name="Conf WA HQ B5 3A"),
-            Subtitle(6, (0, 11, 34, 649), (0, 11, 38, 429), "Whether there's Bluetooth connection.", name="Conf WA HQ B5 3A"),
-            Subtitle(7, (0, 11, 38, 429), (0, 11, 42, 929), "Or there's no Bluetooth connection because.", name="Conf WA HQ B5 3A"),
-            Subtitle(8, (0, 11, 42, 929), (0, 11, 47, 309), "If you lose Bluetooth connection, you still have your GPS.", name="Conf WA HQ B5 3A"),
+            Subtitle(
+                1, (0, 11, 3, 989), (0, 11, 7, 169),
+                "Another option is just to pop the tool tip.",
+                name="Shmo, Jonathan",
+            ),
+            Subtitle(
+                2, (0, 11, 7, 169), (0, 11, 16, 619),
+                "Right. That's okay. That's I'm okay with that.",
+                name="Doe, Kevin",
+            ),
+            Subtitle(
+                3, (0, 11, 16, 619), (0, 11, 23, 369),
+                "Yep, yeah, we can just defaulted on for the 1st time.",
+                name="Shmo, Jonathan",
+            ),
+            Subtitle(
+                4, (0, 11, 23, 369), (0, 11, 28, 679),
+                "Um, Paul, I think Paul had the hands up.",
+                name="Doe, Kevin",
+            ),
+            Subtitle(
+                5, (0, 11, 28, 679), (0, 11, 34, 649),
+                "What is what is the difference for the user?",
+                name="Conf WA HQ B5 3A",
+            ),
+            Subtitle(
+                6, (0, 11, 34, 649), (0, 11, 38, 429),
+                "Whether there's Bluetooth connection.",
+                name="Conf WA HQ B5 3A",
+            ),
+            Subtitle(
+                7, (0, 11, 38, 429), (0, 11, 42, 929),
+                "Or there's no Bluetooth connection because.",
+                name="Conf WA HQ B5 3A",
+            ),
+            Subtitle(
+                8, (0, 11, 42, 929), (0, 11, 47, 309),
+                "If you lose Bluetooth connection, you still have your GPS.",
+                name="Conf WA HQ B5 3A",
+            ),
         ])
 
 
