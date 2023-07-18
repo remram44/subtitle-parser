@@ -23,7 +23,7 @@ classifiers = [
 ]
 
 include = [
-    "tests.py",
+    "tests.py", "CHANGELOG.md",
 ]
 
 [tool.poetry.urls]
