@@ -25,30 +25,32 @@ def format_timestamp(ts):
 
 
 class Subtitle(object):
-    def __init__(self, number, start, end, text):
+    def __init__(self, number, name, start, end, text):
         self.number = number
+        self.name = name
         self.start = start
         self.end = end
         self.text = text
 
     def __eq__(self, other):
         return (
-            self.number, self.start, self.end, self.text,
+            self.number, self.name, self.start, self.end, self.text,
         ) == (
-            other.number, other.start, other.end, other.text,
+            other.number, other.name, other.start, other.end, other.text,
         )
 
     def __hash__(self):
         return hash((
-            self.number, self.start, self.end, self.text,
+            self.number, self.name, self.start, self.end, self.text,
         ))
 
     def __repr__(self):
         return (
-            '<Subtitle number={number} '
+            '<Subtitle number={number} name={name} '
             + 'start={start} end={end} text={text}>'
         ).format(
             number=self.number,
+            name=self.name,
             start=format_timestamp(self.start),
             end=format_timestamp(self.end),
             text=self.text,
@@ -101,8 +103,13 @@ class SrtParser(object):
     def parse_subtitle(self):
         # Read subtitle number
         line = self.next_line()
+        name = None
         if line is None:
             return False
+        line_with_name = re.match(r'(\d+) "(.+)"', line)
+        if line_with_name is not None:
+            line = line_with_name.group(1)
+            name = line_with_name.group(2)
         if '-->' not in line:
             self.read_line()
             try:
@@ -161,7 +168,7 @@ class SrtParser(object):
             )
 
         self.subtitles.append(Subtitle(
-            subtitle_number, start, end,
+            subtitle_number, name, start, end,
             '\n'.join(lines),
         ))
 
@@ -302,6 +309,7 @@ def render_html(subtitles, file_out):
         print(
             "<p>{ts} {text}</p>".format(
                 ts=format_timestamp(subtitle.start),
+                name=html.escape(subtitle.name),
                 text=html.escape(subtitle.text).replace('\n', '<br>'),
             ),
             file=file_out,
@@ -312,11 +320,12 @@ def render_csv(subtitles, file_out):
     import csv
 
     writer = csv.writer(file_out)
-    writer.writerow(['start', 'end', 'text'])
+    writer.writerow(['start', 'end', 'name', 'text'])
     for subtitle in subtitles:
         writer.writerow([
             format_timestamp(subtitle.start),
             format_timestamp(subtitle.end),
+            subtitle.name,
             subtitle.text,
         ])
 
