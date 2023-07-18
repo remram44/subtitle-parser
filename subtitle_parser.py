@@ -303,32 +303,43 @@ class WebVttParser(SrtParser):
         self.skip_blank_lines()
 
 
-def render_html(subtitles, file_out):
+def render_html(subtitles, file_out, *, show_name=None):
     import html
 
     for subtitle in subtitles:
+        name = ''
+        if show_name is not False and subtitle.name:
+            name = ' ' + html.escape(subtitle.name)
         print(
-            "<p>{ts} {text}</p>".format(
+            "<p>{ts}{name} {text}</p>".format(
                 ts=format_timestamp(subtitle.start),
-                name=html.escape(subtitle.name),
+                name=name,
                 text=html.escape(subtitle.text).replace('\n', '<br>'),
             ),
             file=file_out,
         )
 
 
-def render_csv(subtitles, file_out):
+def render_csv(subtitles, file_out, *, show_name=None):
     import csv
 
     writer = csv.writer(file_out)
-    writer.writerow(['start', 'end', 'name', 'text'])
+    writer.writerow(
+        ['start', 'end']
+        + (['name'] if show_name else [])
+        + ['text']
+    )
     for subtitle in subtitles:
-        writer.writerow([
-            format_timestamp(subtitle.start),
-            format_timestamp(subtitle.end),
-            subtitle.name,
-            subtitle.text,
-        ])
+        writer.writerow(
+            [
+                format_timestamp(subtitle.start),
+                format_timestamp(subtitle.end),
+            ]
+            + ([subtitle.name] if show_name else [])
+            + [
+                subtitle.text,
+            ]
+        )
 
 
 def main():
@@ -337,6 +348,16 @@ def main():
     arg_parser.add_argument('--input-charset', default=None)
     arg_parser.add_argument('input', help="Input subtitles")
     arg_parser.add_argument('--output', '-o', help="Output file name")
+    arg_parser.add_argument(
+        '--with-name',
+        default=None, action='store_true', dest='show_name',
+        help="Show the speaker's name",
+    )
+    arg_parser.add_argument(
+        '--without-name',
+        default=None, action='store_false', dest='show_name',
+        help="Don't show the speaker's name",
+    )
 
     args = arg_parser.parse_args()
 
@@ -445,7 +466,7 @@ def main():
         )
 
     # Write output
-    render_func(parser.subtitles, file_output)
+    render_func(parser.subtitles, file_output, show_name=args.show_name)
     file_output.close()
 
 
