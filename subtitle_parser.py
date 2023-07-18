@@ -25,7 +25,7 @@ def format_timestamp(ts):
 
 
 class Subtitle(object):
-    def __init__(self, number, name, start, end, text):
+    def __init__(self, number, start, end, text, *, name=None):
         self.number = number
         self.name = name
         self.start = start
@@ -168,8 +168,9 @@ class SrtParser(object):
             )
 
         self.subtitles.append(Subtitle(
-            subtitle_number, name, start, end,
+            subtitle_number, start, end,
             '\n'.join(lines),
+            name=name,
         ))
 
         self.skip_blank_lines()

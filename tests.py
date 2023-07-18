@@ -21,9 +21,9 @@ class TestSrtSubtitles(unittest.TestCase):
         ''')))
         parser.parse()
         self.assertEqual(parser.subtitles, [
-            Subtitle(1, None, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
+            Subtitle(1, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
             Subtitle(
-                2, None, (0, 1, 4, 843), (0, 1, 5, 428),
+                2, (0, 1, 4, 843), (0, 1, 5, 428),
                 'This is an example of a\nsubtitle file in SRT format',
             ),
         ])
@@ -46,9 +46,9 @@ class TestSrtSubtitles(unittest.TestCase):
         ''')))
         parser.parse()
         self.assertEqual(parser.subtitles, [
-            Subtitle(2, None, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
+            Subtitle(2, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
             Subtitle(
-                5, None, (0, 1, 4, 843), (0, 1, 5, 428),
+                5, (0, 1, 4, 843), (0, 1, 5, 428),
                 'This is an example of a\nsubtitle file in SRT format',
             ),
         ])
@@ -142,9 +142,9 @@ class TestWebVttSubtitles(unittest.TestCase):
         ''')))
         parser.parse()
         self.assertEqual(parser.subtitles, [
-            Subtitle(1, None, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
+            Subtitle(1, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
             Subtitle(
-                None, None, (0, 1, 4, 843), (0, 1, 5, 428),
+                None, (0, 1, 4, 843), (0, 1, 5, 428),
                 'This is an example of a\nsubtitle file in SRT format',
             ),
         ])
@@ -191,12 +191,12 @@ class TestWebVttSubtitles(unittest.TestCase):
         ''')))
         parser.parse()
         self.assertEqual(parser.subtitles, [
-            Subtitle(1, None, (0, 0, 0, 123), (0, 0, 1, 456), 'number'),
-            Subtitle(None, None, (0, 0, 2, 0), (0, 0, 3, 0), 'no number'),
-            Subtitle(None, None, (0, 0, 4, 0), (0, 0, 5, 0), 'no number'),
-            Subtitle(2, None, (0, 0, 6, 0), (0, 0, 7, 0), 'number'),
-            Subtitle(4, None, (0, 0, 8, 0), (0, 0, 9, 0), 'wrong number'),
-            Subtitle(None, None, (0, 0, 10, 0), (0, 0, 11, 0), 'no number'),
+            Subtitle(1, (0, 0, 0, 123), (0, 0, 1, 456), 'number'),
+            Subtitle(None, (0, 0, 2, 0), (0, 0, 3, 0), 'no number'),
+            Subtitle(None, (0, 0, 4, 0), (0, 0, 5, 0), 'no number'),
+            Subtitle(2, (0, 0, 6, 0), (0, 0, 7, 0), 'number'),
+            Subtitle(4, (0, 0, 8, 0), (0, 0, 9, 0), 'wrong number'),
+            Subtitle(None, (0, 0, 10, 0), (0, 0, 11, 0), 'no number'),
         ])
         self.assertEqual(parser.warnings, [
             (6, 'Subtitle numbers stop line 7'),
@@ -246,14 +246,14 @@ class TestWebVttSubtitles(unittest.TestCase):
         ''')))
         parser.parse()
         self.assertEqual(parser.subtitles, [
-            Subtitle(1, "Shmo, Jonathan", (0, 11, 3, 989), (0, 11, 7, 169), "Another option is just to pop the tool tip."),
-            Subtitle(2, "Doe, Kevin", (0, 11, 7, 169), (0, 11, 16, 619), "Right. That's okay. That's I'm okay with that. See like that achieve that goal. The outcome is I want people without having to click know what the behind the."),
-            Subtitle(3, "Shmo, Jonathan", (0, 11, 16, 619), (0, 11, 23, 369), 'Yep, yeah, we can just defaulted on for the 1st time.'),
-            Subtitle(4, "Doe, Kevin", (0, 11, 23, 369), (0, 11, 28, 679), 'Um, Paul, I think Paul had the hands up.'),
-            Subtitle(5, "Conf WA HQ B5 3A", (0, 11, 28, 679), (0, 11, 34, 649), 'That Paul, or is that monitor again? What is what is the difference for the user?'),
-            Subtitle(6, "Conf WA HQ B5 3A", (0, 11, 34, 649), (0, 11, 38, 429), "Whether there's Bluetooth connection."),
-            Subtitle(7, "Conf WA HQ B5 3A", (0, 11, 38, 429), (0, 11, 42, 929), "Or there's no Bluetooth connection because."),
-            Subtitle(8, "Conf WA HQ B5 3A", (0, 11, 42, 929), (0, 11, 47, 309), 'If you lose Bluetooth connection, you still have your GPS.'),
+            Subtitle(1, (0, 11, 3, 989), (0, 11, 7, 169), "Another option is just to pop the tool tip.", name="Shmo, Jonathan"),
+            Subtitle(2, (0, 11, 7, 169), (0, 11, 16, 619), "Right. That's okay. That's I'm okay with that. See like that achieve that goal. The outcome is I want people without having to click know what the behind the.", name="Doe, Kevin"),
+            Subtitle(3, (0, 11, 16, 619), (0, 11, 23, 369), "Yep, yeah, we can just defaulted on for the 1st time.", name="Shmo, Jonathan"),
+            Subtitle(4, (0, 11, 23, 369), (0, 11, 28, 679), "Um, Paul, I think Paul had the hands up.", name="Doe, Kevin"),
+            Subtitle(5, (0, 11, 28, 679), (0, 11, 34, 649), "That Paul, or is that monitor again? What is what is the difference for the user?", name="Conf WA HQ B5 3A"),
+            Subtitle(6, (0, 11, 34, 649), (0, 11, 38, 429), "Whether there's Bluetooth connection.", name="Conf WA HQ B5 3A"),
+            Subtitle(7, (0, 11, 38, 429), (0, 11, 42, 929), "Or there's no Bluetooth connection because.", name="Conf WA HQ B5 3A"),
+            Subtitle(8, (0, 11, 42, 929), (0, 11, 47, 309), "If you lose Bluetooth connection, you still have your GPS.", name="Conf WA HQ B5 3A"),
         ])
 
 
