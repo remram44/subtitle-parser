@@ -21,7 +21,13 @@ class SubtitleError(ValueError):
 
 
 def format_timestamp(ts, *, sep='.'):
-    return '{0:02}:{1:02}:{2:02}{sep}{3:03}'.format(*ts, sep=sep)
+    return '{0:02}:{1:02}:{2:02}{sep}{3:03}'.format(
+        ts // (60 * 60 * 1000),
+        (ts // (60 * 1000)) % 60,
+        (ts // 1000) % 60,
+        ts % 1000,
+        sep=sep,
+    )
 
 
 class Subtitle(object):
@@ -206,7 +212,7 @@ class SrtParser(object):
                     lineno=self.lineno,
                 ),
             )
-        return hours, minutes, seconds, milliseconds
+        return ((hours * 60 + minutes) * 60 + seconds) * 1000 + milliseconds
 
     def parse_timestamps(self):
         line = self.read_line()
