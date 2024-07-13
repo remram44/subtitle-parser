@@ -1,7 +1,9 @@
 import unittest
 
 import re
-from subtitle_parser import SubtitleError, Subtitle, SrtParser, WebVttParser
+from subtitle_parser import SubtitleError, Subtitle, \
+    SrtParser, WebVttParser, \
+    render_srt
 
 
 class TestSrtSubtitles(unittest.TestCase):
@@ -104,6 +106,36 @@ class TestSrtSubtitles(unittest.TestCase):
         # Can't assert exact line number, codec will raise before you get to
         # the exact line because it decodes big chunks at a time
         self.assertTrue(350 < int(m.group(1), 10) < 400)
+
+    def test_render(self):
+        import io
+        import textwrap
+
+        out = io.StringIO()
+        render_srt(
+            [
+                Subtitle(2, (0, 0, 0, 123), (0, 0, 3, 456), 'Hi there'),
+                Subtitle(
+                    5, (0, 1, 4, 843), (0, 1, 5, 428),
+                    'This is an example of a\nsubtitle file in SRT format',
+                ),
+            ],
+            out,
+        )
+        self.assertEqual(
+            out.getvalue(),
+            textwrap.dedent('''\
+                1
+                00:00:00,123 --> 00:00:03,456
+                Hi there
+
+                2
+                00:01:04,843 --> 00:01:05,428
+                This is an example of a
+                subtitle file in SRT format
+
+        '''),
+        )
 
 
 class TestWebVttSubtitles(unittest.TestCase):

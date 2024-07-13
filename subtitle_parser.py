@@ -20,8 +20,8 @@ class SubtitleError(ValueError):
     """Invalid subtitle file"""
 
 
-def format_timestamp(ts):
-    return '{0:02}:{1:02}:{2:02}.{3:03}'.format(*ts)
+def format_timestamp(ts, *, sep='.'):
+    return '{0:02}:{1:02}:{2:02}{sep}{3:03}'.format(*ts, sep=sep)
 
 
 class Subtitle(object):
@@ -339,6 +339,19 @@ def render_csv(subtitles, file_out, *, show_name=None):
             + [
                 subtitle.text,
             ]
+        )
+
+
+def render_srt(subtitles, file_out):
+    for number, subtitle in enumerate(subtitles, 1):
+        print(
+            '{number}\n{start} --> {end}\n{text}\n'.format(
+                number=number,
+                start=format_timestamp(subtitle.start, sep=','),
+                end=format_timestamp(subtitle.end, sep=','),
+                text=subtitle.text,
+            ),
+            file=file_out,
         )
 
 
