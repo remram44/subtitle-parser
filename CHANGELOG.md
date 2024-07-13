@@ -1,6 +1,16 @@
 Changelog
 =========
 
+2.0.0 (2024-07-12)
+------------------
+
+API changes:
+* `Subtitle.{start,end}` are now a number of milliseconds rather than a tuple
+
+Other changes:
+* Add SRT output format
+* Minor change to HTML output format
+
 1.3.0 (2023-07-18)
 ------------------
 
