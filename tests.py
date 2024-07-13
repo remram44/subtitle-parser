@@ -3,7 +3,7 @@ import unittest
 import re
 from subtitle_parser import SubtitleError, Subtitle, \
     SrtParser, WebVttParser, \
-    render_srt
+    render_html, render_csv, render_srt
 
 
 def ts(hour, minute, second, milli):
@@ -111,34 +111,119 @@ class TestSrtSubtitles(unittest.TestCase):
         # the exact line because it decodes big chunks at a time
         self.assertTrue(350 < int(m.group(1), 10) < 400)
 
-    def test_render(self):
+
+class TestRender(unittest.TestCase):
+    subtitles = [
+        Subtitle(
+            2, ts(0, 0, 0, 123), ts(0, 0, 3, 456),
+            'Hi there', name='Remi',
+        ),
+        Subtitle(
+            5, ts(0, 1, 4, 843), ts(0, 1, 5, 428),
+            'This is an example of a\nsubtitle file in SRT format',
+        ),
+    ]
+
+    @classmethod
+    def call_render(cls, func, show_name):
         import io
-        import textwrap
 
         out = io.StringIO()
-        render_srt(
-            [
-                Subtitle(2, ts(0, 0, 0, 123), ts(0, 0, 3, 456), 'Hi there'),
-                Subtitle(
-                    5, ts(0, 1, 4, 843), ts(0, 1, 5, 428),
-                    'This is an example of a\nsubtitle file in SRT format',
-                ),
-            ],
-            out,
+        func(cls.subtitles, out, show_name=show_name)
+        return out.getvalue()
+
+    def test_html(self):
+        nonames = (
+            '<p>00:00:00.123 Hi there</p>\n'
+            + '<p>00:01:04.843 This is an example of a<br>'
+            + 'subtitle file in SRT format</p>\n'
+        )
+        names = (
+            '<p>00:00:00.123 Remi: Hi there</p>\n'
+            + '<p>00:01:04.843 This is an example of a'
+            + '<br>subtitle file in SRT format</p>\n'
+        )
+
+        self.assertEqual(
+            self.call_render(render_html, True),
+            names,
         )
         self.assertEqual(
-            out.getvalue(),
-            textwrap.dedent('''\
-                1
-                00:00:00,123 --> 00:00:03,456
-                Hi there
+            self.call_render(render_html, False),
+            nonames,
+        )
+        self.assertEqual(
+            self.call_render(render_html, None),
+            names,
+        )
 
-                2
-                00:01:04,843 --> 00:01:05,428
-                This is an example of a
-                subtitle file in SRT format
+    def test_csv(self):
+        import textwrap
 
-        '''),
+        nonames = textwrap.dedent('''\
+            start,end,text\r
+            00:00:00.123,00:00:03.456,Hi there\r
+            00:01:04.843,00:01:05.428,"This is an example of a
+            subtitle file in SRT format"\r
+        ''')
+        names = textwrap.dedent('''\
+            start,end,name,text\r
+            00:00:00.123,00:00:03.456,Remi,Hi there\r
+            00:01:04.843,00:01:05.428,,"This is an example of a
+            subtitle file in SRT format"\r
+        ''')
+
+        self.assertEqual(
+            self.call_render(render_csv, True),
+            names,
+        )
+        self.assertEqual(
+            self.call_render(render_csv, False),
+            nonames,
+        )
+        self.assertEqual(
+            self.call_render(render_csv, None),
+            nonames,
+        )
+
+    def test_srt(self):
+        import textwrap
+
+        nonames = textwrap.dedent('''\
+            1
+            00:00:00,123 --> 00:00:03,456
+            Hi there
+
+            2
+            00:01:04,843 --> 00:01:05,428
+            This is an example of a
+            subtitle file in SRT format
+
+        ''')
+        names = textwrap.dedent('''\
+            1
+            00:00:00,123 --> 00:00:03,456
+            [Remi]
+            Hi there
+
+            2
+            00:01:04,843 --> 00:01:05,428
+            This is an example of a
+            subtitle file in SRT format
+
+        ''')
+
+        self.assertEqual(
+            self.call_render(render_srt, True),
+            names,
+        )
+        self.assertEqual(
+            self.call_render(render_srt, False),
+            nonames,
+        )
+        self.assertEqual(
+            self.call_render(render_srt, None),
+            names,
         )
 
 
