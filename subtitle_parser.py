@@ -315,9 +315,9 @@ def render_html(subtitles, file_out, *, show_name=None):
     for subtitle in subtitles:
         name = ''
         if show_name is not False and subtitle.name:
-            name = ' ' + html.escape(subtitle.name)
+            name = html.escape(subtitle.name) + ': '
         print(
-            "<p>{ts}{name} {text}</p>".format(
+            "<p>{ts} {name}{text}</p>".format(
                 ts=format_timestamp(subtitle.start),
                 name=name,
                 text=html.escape(subtitle.text).replace('\n', '<br>'),
