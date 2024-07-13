@@ -342,13 +342,18 @@ def render_csv(subtitles, file_out, *, show_name=None):
         )
 
 
-def render_srt(subtitles, file_out):
+def render_srt(subtitles, file_out, *, show_name=None):
     for number, subtitle in enumerate(subtitles, 1):
+        if show_name is not False and subtitle.name:
+            name = '[{0}]\n'.format(subtitle.name)
+        else:
+            name = ''
         print(
-            '{number}\n{start} --> {end}\n{text}\n'.format(
+            '{number}\n{start} --> {end}\n{name}{text}\n'.format(
                 number=number,
                 start=format_timestamp(subtitle.start, sep=','),
                 end=format_timestamp(subtitle.end, sep=','),
+                name=name,
                 text=subtitle.text,
             ),
             file=file_out,
@@ -385,6 +390,9 @@ def main():
     elif to == 'csv':
         render_func = render_csv
         ext = '.csv'
+    elif to == 'srt':
+        render_func = render_srt
+        ext = '.srt'
     else:
         arg_parser.error("Requested output format is not supported")
         return
