@@ -23,7 +23,8 @@ classifiers = [
 ]
 
 include = [
-    "tests.py", "CHANGELOG.md",
+    { path = "tests.py", format = "sdist" },
+    { path = "CHANGELOG.md", format = "sdist" },
 ]
 
 [tool.poetry.urls]
